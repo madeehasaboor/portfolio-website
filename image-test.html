@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Loading Test - KSM Enterprises</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .image-item {
+            text-align: center;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .image-item img {
+            max-width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        .image-item p {
+            margin: 10px 0 0 0;
+            font-size: 12px;
+            color: #666;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .status.loading {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <h1>Image Loading Test for GitHub Pages</h1>
+    
+    <div class="test-section">
+        <h2>Test Results</h2>
+        <p>This page tests if images are loading correctly on GitHub Pages. Check the browser console for detailed logs.</p>
+        <div id="testResults"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Product Images Test</h2>
+        <div class="image-grid" id="productImages"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Brand Logo Images Test</h2>
+        <div class="image-grid" id="brandImages"></div>
+    </div>
+
+    <script>
+        // Test images
+        const testImages = [
+            // Product images
+            { src: './products/CAR WAX/F1-101 CARNAUBA WASH &WAX.jpeg', name: 'Formula 1 Car Wash & Wax' },
+            { src: './products/CAR WAX/F1-113 CERAMIC LIQUID WAX.jpeg', name: 'Formula 1 Ceramic Wax' },
+            { src: './products/CAR WAX/F1-114 CERAMIC SPRAY WAX.jpeg', name: 'Formula 1 Spray Wax' },
+            { src: './products/CAR WAX/F1-104 CARNAUBA LIQUID WAX.jpeg', name: 'Formula 1 Carnuba Wax' },
+            { src: './products/CAR WAX/F1-107 CARNAUBA WAX PASTE.jpeg', name: 'Formula 1 Wax Paste' },
+            { src: './products/formula-1-black-gold-tire-shine-680-ml-.jpg', name: 'Formula 1 Tire Shine' },
+            { src: './products/CAR WASH SHAMPOOS/AW-157 AIM WASH & SHAMPOO.jpeg', name: 'AIM Car Wash & Shampoo' },
+            { src: './products/CAR WAX/AW-104 AW WASH & WAX.jpeg', name: 'AIM Wash & Wax' },
+            { src: './products/CAR WAX/A-121 LEATHER TYRE WAX.jpeg', name: 'AIM Leather & Tyre Wax' },
+            { src: './products/auto shine wax.jpg', name: 'AIM Auto Shine Wax' },
+            { src: './products/WD-40.jpg', name: 'WD-40 Multi-Purpose' },
+            { src: './products/Glass Cleaner with Rain Repellent.jpg', name: 'Glass Cleaner' },
+            { src: './products/Wheel rim cleaner.jpg', name: 'Wheel Rim Cleaner' },
+            { src: './products/Wheel tyre clean.jpg', name: 'Wheel Tyre Clean' },
+            
+            // Brand logos
+            { src: './brand logos/frontendformula1-logo.jpg.jpg', name: 'Formula 1 Logo' },
+            { src: './brand logos/frontendaim-logo.jpg.jpg', name: 'AIM Logo' },
+            { src: './brand logos/frontendwd40-logo.jpg.jpg', name: 'WD-40 Logo' },
+            { src: './director-image.jp.jpg.jpg', name: 'Director Image' }
+        ];
+
+        let loadedCount = 0;
+        let failedCount = 0;
+
+        function testImage(imageData) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                const startTime = Date.now();
+                
+                img.onload = function() {
+                    const loadTime = Date.now() - startTime;
+                    console.log(`✅ Loaded: ${imageData.src} (${loadTime}ms)`);
+                    resolve({ success: true, imageData, loadTime });
+                };
+                
+                img.onerror = function() {
+                    console.error(`❌ Failed: ${imageData.src}`);
+                    resolve({ success: false, imageData });
+                };
+                
+                img.src = imageData.src;
+            });
+        }
+
+        async function runTests() {
+            console.log('Starting image loading tests...');
+            
+            const productGrid = document.getElementById('productImages');
+            const brandGrid = document.getElementById('brandImages');
+            const resultsDiv = document.getElementById('testResults');
+            
+            // Test product images
+            for (let i = 0; i < 14; i++) {
+                const result = await testImage(testImages[i]);
+                const div = document.createElement('div');
+                div.className = 'image-item';
+                
+                if (result.success) {
+                    loadedCount++;
+                    div.innerHTML = `
+                        <img src="${result.imageData.src}" alt="${result.imageData.name}" 
+                             onerror="this.src='https://via.placeholder.com/200x150?text=Error'">
+                        <p>${result.imageData.name}</p>
+                        <span class="status success">✅ Loaded (${result.loadTime}ms)</span>
+                    `;
+                } else {
+                    failedCount++;
+                    div.innerHTML = `
+                        <img src="https://via.placeholder.com/200x150?text=Failed" alt="Failed to load">
+                        <p>${result.imageData.name}</p>
+                        <span class="status error">❌ Failed</span>
+                    `;
+                }
+                
+                productGrid.appendChild(div);
+            }
+            
+            // Test brand images
+            for (let i = 14; i < testImages.length; i++) {
+                const result = await testImage(testImages[i]);
+                const div = document.createElement('div');
+                div.className = 'image-item';
+                
+                if (result.success) {
+                    loadedCount++;
+                    div.innerHTML = `
+                        <img src="${result.imageData.src}" alt="${result.imageData.name}" 
+                             onerror="this.src='https://via.placeholder.com/200x150?text=Error'">
+                        <p>${result.imageData.name}</p>
+                        <span class="status success">✅ Loaded (${result.loadTime}ms)</span>
+                    `;
+                } else {
+                    failedCount++;
+                    div.innerHTML = `
+                        <img src="https://via.placeholder.com/200x150?text=Failed" alt="Failed to load">
+                        <p>${result.imageData.name}</p>
+                        <span class="status error">❌ Failed</span>
+                    `;
+                }
+                
+                brandGrid.appendChild(div);
+            }
+            
+            // Show summary
+            resultsDiv.innerHTML = `
+                <h3>Test Summary:</h3>
+                <p><strong>Total Images:</strong> ${testImages.length}</p>
+                <p><strong>Successfully Loaded:</strong> <span style="color: green;">${loadedCount}</span></p>
+                <p><strong>Failed to Load:</strong> <span style="color: red;">${failedCount}</span></p>
+                <p><strong>Success Rate:</strong> ${((loadedCount / testImages.length) * 100).toFixed(1)}%</p>
+            `;
+            
+            console.log(`Test completed: ${loadedCount} loaded, ${failedCount} failed`);
+        }
+
+        // Run tests when page loads
+        document.addEventListener('DOMContentLoaded', runTests);
+    </script>
+</body>
+</html> 
